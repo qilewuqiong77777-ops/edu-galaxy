@@ -1,283 +1,98 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <title>五育星系成长模型 - 交互完全修复版</title>
-    <style>
-        body { margin: 0; background: #000; color: white; font-family: "PingFang SC", "Microsoft YaHei", sans-serif; display: flex; overflow: hidden; }
-        
-        /* 姓名栏宽度缩小至200px */
-        #sidebar { 
-            width: 200px; height: 100vh; background: rgba(5, 12, 30, 0.98); 
-            border-right: 1px solid rgba(255, 255, 255, 0.1); display: flex; flex-direction: column; z-index: 100;
-            backdrop-filter: blur(20px);
-        }
-        .reset-header { padding: 15px; border-bottom: 1px solid #ffcc00; }
-        .btn-reset-top { 
-            width: 100%; padding: 10px; background: transparent; border: 1px solid #ffcc00; 
-            color: #ffcc00; cursor: pointer; font-weight: bold; border-radius: 4px; font-size: 13px;
-        }
-        .btn-reset-top:hover { background: #ffcc00; color: #000; }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>德育星系互动大模型</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <canvas id="galaxyCanvas" aria-label="德育星系交互模型"></canvas>
 
-        #studentList { flex: 1; overflow-y: auto; }
-        /* 姓名放大展示 */
-        .student-item { 
-            padding: 15px 20px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.03); 
-            font-size: 18px; color: #8bb1d6; transition: 0.2s; 
-        }
-        .student-item:hover { background: rgba(255, 204, 0, 0.15); color: #fff; }
-        .student-item.active { border-left: 5px solid #ffcc00; background: rgba(255, 204, 0, 0.1); color: #fff; }
+      <section class="control-panel" aria-label="德育星系控制台">
+        <header class="panel-head">
+          <p class="eyebrow">五年级德育工作展示</p>
+          <h1>很高兴你在做更好的自己</h1>
+          <button id="viewToggle" class="view-toggle" type="button">全景模式</button>
+        </header>
 
-        /* 悬浮窗位置：姓名栏正右侧 */
-        #hover-tooltip { 
-            position: fixed; display: none; background: rgba(5, 15, 45, 0.98); 
-            border: 1px solid #ffcc00; padding: 20px; border-radius: 12px; 
-            z-index: 2000; width: 280px; box-shadow: 0 10px 50px rgba(0,0,0,1);
-            left: 210px; /* 固定在 sidebar 宽度(200px)右侧 */
-            pointer-events: auto;
-        }
-        
-        .tip-title { font-weight: bold; color: #ffcc00; margin-bottom: 15px; font-size: 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; }
-        #radar-container { width: 100%; height: 180px; margin-bottom: 15px; display: flex; justify-content: center; }
-        .counter-row { display: flex; align-items: center; justify-content: space-between; margin: 8px 0; font-size: 14px; }
-        .btn-adj { width: 26px; height: 26px; background: #2a2a2a; border: 1px solid #444; color: white; cursor: pointer; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-        .btn-adj:hover { background: #ffcc00; color: #000; }
-        
-        #container3d { flex: 1; position: relative; }
-        .planet-label { color: #fff; font-size: 14px; font-weight: bold; padding: 5px 12px; background: rgba(0,0,0,0.7); border-radius: 15px; border: 1px solid #ffcc00; pointer-events: none; }
-    </style>
-</head>
-<body>
+        <section class="teacher-card">
+          <div class="sun-mark"></div>
+          <div>
+            <p class="label">星系中心</p>
+            <strong>班主任小太阳</strong>
+            <span>光与热持续照亮 31 颗星球</span>
+          </div>
+        </section>
 
-<div id="sidebar">
-    <div class="reset-header"><button class="btn-reset-top" onclick="resetView()">✨ 恢复全景视角</button></div>
-    <div id="studentList"></div>
-</div>
+        <section class="light-legend" aria-label="四育教育光束图例">
+          <span><i style="--legend-color:#8d6ccf"></i>智育紫光</span>
+          <span><i style="--legend-color:#4f92b8"></i>体育蓝光</span>
+          <span><i style="--legend-color:#d8a236"></i>美育金光</span>
+          <span><i style="--legend-color:#4d9a66"></i>劳育绿光</span>
+        </section>
 
-<div id="hover-tooltip">
-    <div id="tip-name" class="tip-title">学生画像</div>
-    <div id="radar-container"><canvas id="radarCanvas" width="180" height="180"></canvas></div>
-    <div id="counters-ui"></div>
-</div>
+        <section class="student-section">
+          <div class="section-title">
+            <span>学生星球</span>
+            <small>悬浮查看五育</small>
+          </div>
+          <div id="studentList" class="student-list"></div>
+        </section>
 
-<div id="container3d"></div>
+        <section class="class-actions">
+          <div class="section-title">
+            <span>九学期活动星历</span>
+            <small>活动沉淀五育</small>
+          </div>
+          <div class="semester-tools">
+            <select id="semesterSelect" aria-label="选择学期活动"></select>
+            <button id="applySemester" type="button">应用本学期</button>
+          </div>
+          <div id="activityList" class="activity-list"></div>
+          <button id="applyHistory" class="history-button" type="button">应用九学期积累</button>
+          <div class="action-grid">
+            <button data-virtue="de" type="button">主题班会 +德育</button>
+            <button data-virtue="zhi" type="button">阅读指导 +智育</button>
+            <button data-virtue="ti" type="button">运动挑战 +体育</button>
+            <button data-virtue="mei" type="button">艺术表达 +美育</button>
+            <button data-virtue="lao" type="button">劳动实践 +劳育</button>
+          </div>
+        </section>
+      </section>
 
-<script src="https://cdn.jsdelivr.net/npm/three@0.145.0/build/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.145.0/examples/js/controls/OrbitControls.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.145.0/examples/js/renderers/CSS2DRenderer.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.2/dist/gsap.min.js"></script>
+      <aside id="studentCard" class="student-card" aria-live="polite">
+        <div class="student-card-head">
+          <div>
+            <p id="cardOrbit" class="label">星球 01</p>
+            <h2 id="cardName">丁同学</h2>
+          </div>
+          <span id="cardLevel" class="level-pill">成长</span>
+        </div>
+        <canvas id="radarCanvas" width="230" height="190" aria-label="五育雷达图"></canvas>
+        <div id="virtueBars" class="virtue-bars"></div>
+        <p id="caseNote" class="case-note">很高兴你在做更好的自己。</p>
+        <section class="talent-archive" aria-label="个人运动、艺术素质评价档案">
+          <div class="archive-title">
+            <span>个人运动、艺术素质评价档案</span>
+            <small>健康第一</small>
+          </div>
+          <div id="talentArchive" class="archive-grid"></div>
+        </section>
+        <section class="communication-card" aria-label="班主任个性化沟通方式">
+          <div class="archive-title">
+            <span>班主任沟通方式</span>
+            <small id="mbtiBadge">MBTI</small>
+          </div>
+          <div id="communicationGuide" class="communication-guide"></div>
+        </section>
+        <div id="parentMoons" class="parent-moons"></div>
+      </aside>
 
-<script id="planetVertex" type="x-shader/x-vertex">
-    varying vec3 vPosition; varying vec3 vNormal;
-    void main() { vPosition = position; vNormal = normalize(normalMatrix * normal); gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }
-</script>
-<script id="planetFragment" type="x-shader/x-fragment">
-    varying vec3 vPosition; varying vec3 vNormal;
-    uniform float ti; uniform float lao; uniform float zhi; uniform float mei;
-    float hash(vec3 p) { p = fract(p * 0.3183099 + 0.1); p *= 17.0; return fract(p.x * p.y * p.z * (p.x + p.y + p.z)); }
-    float noise(vec3 x) {
-        vec3 i = floor(x); vec3 f = fract(x); f = f*f*(3.0-2.0*f);
-        return mix(mix(hash(i), hash(i+vec3(1,0,0)), f.x), mix(hash(i+vec3(0,1,0)), hash(i+vec3(1,1,0)), f.x), f.y);
-    }
-    void main() {
-        float h = noise(vPosition * 0.1) * 0.5 + noise(vPosition * 0.2) * 0.25;
-        float waterLvl = (ti / 100.0) * 0.7;
-        vec3 color;
-        vec3 lightDir = normalize(vec3(5.0, 3.0, 5.0));
-        float lightIntensity = dot(vNormal, lightDir);
-        if (h < waterLvl) { color = mix(vec3(0.01, 0.05, 0.2), vec3(0.0, 0.4, 0.8), h/max(0.01, waterLvl)); }
-        else {
-            color = mix(vec3(0.4, 0.3, 0.2), vec3(0.05, 0.45, 0.05), lao * 0.01);
-            float lights = step(1.0 - (zhi * 0.007), noise(vPosition * 12.0));
-            color += vec3(1.0, 0.9, 0.4) * lights * 1.5 * smoothstep(0.4, -0.2, lightIntensity);
-        }
-        gl_FragColor = vec4(color * max(lightIntensity, 0.25), 1.0);
-    }
-</script>
+      <div id="toast" class="toast" role="status"></div>
+    </main>
 
-<script>
-    let trackedPlanet = null, isTransitioning = false, currentStudentData = null;
-    let cameraOffset = new THREE.Vector3(500, 200, 500);
-    const names = ["丁骏凡","位雅琪","刘悦璇","刘轩毓","吴秋伊","常一铭","张冰柠","张冰珂","张天语","弭云曦","支广菲","曹芊蕴","朱俊宇","李亦靳","李和展","李天瑞","李海源","杨博文","欧若熙","王姿艺","王怡可","田嘉齐","祁鑫呈","耿浩茗","胡铎曦","贺峻茂","赵子涵","陈茹艺","韩心仪","黄芃博","黄子淳"];
-    const eduTypes = [{key:'de',label:'德',color:'#ff4d4d'},{key:'zhi',label:'智',color:'#a29bfe'},{key:'ti',label:'体',color:'#74b9ff'},{key:'mei',label:'美',color:'#ffaa7b'},{key:'lao',label:'劳',color:'#55efc4'}];
-
-    const studentsDB = names.map(name => ({
-        name, stats: { de: 75, zhi: 80, ti: 70, mei: 65, lao: 70 },
-        baseSize: name === "田嘉齐" ? 130 : 90
-    }));
-
-    // 雷达图绘制
-    function drawRadar(stats) {
-        const canvas = document.getElementById('radarCanvas');
-        const ctx = canvas.getContext('2d');
-        const centerX = canvas.width / 2; const centerY = canvas.height / 2;
-        const radius = 70; const sides = 5;
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        for (let j = 1; j <= 4; j++) {
-            ctx.beginPath(); ctx.strokeStyle = "rgba(255, 255, 255, 0.1)";
-            for (let i = 0; i < sides; i++) {
-                const x = centerX + radius * (j / 4) * Math.cos(i * 2 * Math.PI / sides - Math.PI / 2);
-                const y = centerY + radius * (j / 4) * Math.sin(i * 2 * Math.PI / sides - Math.PI / 2);
-                i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-            }
-            ctx.closePath(); ctx.stroke();
-        }
-        ctx.beginPath(); ctx.strokeStyle = "#ffcc00"; ctx.fillStyle = "rgba(255, 204, 0, 0.4)"; ctx.lineWidth = 2;
-        const keys = ['de', 'zhi', 'ti', 'mei', 'lao'];
-        keys.forEach((key, i) => {
-            const val = stats[key] / 100;
-            const x = centerX + radius * val * Math.cos(i * 2 * Math.PI / sides - Math.PI / 2);
-            const y = centerY + radius * val * Math.sin(i * 2 * Math.PI / sides - Math.PI / 2);
-            i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-        });
-        ctx.closePath(); ctx.fill(); ctx.stroke();
-        ctx.fillStyle = "#fff"; ctx.font = "12px Arial";
-        eduTypes.forEach((t, i) => {
-            const x = centerX + (radius + 15) * Math.cos(i * 2 * Math.PI / sides - Math.PI / 2) - 5;
-            const y = centerY + (radius + 15) * Math.sin(i * 2 * Math.PI / sides - Math.PI / 2) + 5;
-            ctx.fillText(t.label, x, y);
-        });
-    }
-
-    window.addEventListener('load', function() {
-        const container = document.getElementById('container3d');
-        const tooltip = document.getElementById('hover-tooltip');
-        const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x020308);
-
-        // 背景
-        const starGeo = new THREE.BufferGeometry();
-        const starPos = [];
-        for(let i=0; i<3000; i++) starPos.push((Math.random()-0.5)*15000, (Math.random()-0.5)*15000, (Math.random()-0.5)*15000);
-        starGeo.setAttribute('position', new THREE.Float32BufferAttribute(starPos, 3));
-        scene.add(new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0xffffff, size: 2 })));
-
-        const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 1, 30000);
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setSize(container.clientWidth, container.clientHeight);
-        container.appendChild(renderer.domElement);
-
-        const labelRenderer = new THREE.CSS2DRenderer();
-        labelRenderer.setSize(container.clientWidth, container.clientHeight);
-        labelRenderer.domElement.style.position = 'absolute'; labelRenderer.domElement.style.top = '0px';
-        container.appendChild(labelRenderer.domElement);
-
-        const controls = new THREE.OrbitControls(camera, renderer.domElement);
-        camera.position.set(0, 5000, 8000); controls.enableDamping = true;
-
-        const sun = new THREE.Mesh(new THREE.SphereGeometry(240, 64, 64), new THREE.MeshBasicMaterial({ color: 0xffcc00 }));
-        scene.add(sun);
-        const sunLight = new THREE.PointLight(0xffffff, 3, 15000); scene.add(sunLight);
-
-        const planets = [];
-        const listContainer = document.getElementById('studentList');
-
-        studentsDB.forEach((sData, i) => {
-            const dist = 1200 + i * 220; 
-            const planetMat = new THREE.ShaderMaterial({
-                vertexShader: document.getElementById('planetVertex').textContent,
-                fragmentShader: document.getElementById('planetFragment').textContent,
-                uniforms: { ti: { value: sData.stats.ti }, lao: { value: sData.stats.lao }, zhi: { value: sData.stats.zhi }, mei: { value: sData.stats.mei } }
-            });
-            const planet = new THREE.Mesh(new THREE.SphereGeometry(sData.baseSize, 64, 64), planetMat);
-            const group = new THREE.Group(); group.add(planet);
-            const angle = (i / 31) * Math.PI * 2; 
-            group.position.set(Math.cos(angle) * dist, 0, Math.sin(angle) * dist);
-            scene.add(group);
-
-            // 轨道
-            const orbit = new THREE.Mesh(new THREE.TorusGeometry(dist, 4, 16, 100), new THREE.MeshStandardMaterial({ color: 0x224466, transparent: true, opacity: 0.3 }));
-            orbit.rotation.x = Math.PI/2; scene.add(orbit);
-
-            const labelDiv = document.createElement('div'); labelDiv.className = 'planet-label'; labelDiv.textContent = sData.name;
-            const planetLabel = new THREE.CSS2DObject(labelDiv); planetLabel.position.set(0, sData.baseSize + 50, 0); group.add(planetLabel);
-            
-            const pObj = { group, body: planet, data: sData, dist, angle, speed: 0.00015 + (31-i)*0.00003 };
-            planets.push(pObj);
-
-            // --- 关键修复：姓名栏交互 ---
-            const div = document.createElement('div');
-            div.className = 'student-item'; div.innerText = sData.name;
-            div.onmouseenter = (e) => {
-                currentStudentData = sData;
-                tooltip.style.display = 'block';
-                tooltip.style.top = Math.min(e.clientY, window.innerHeight - 450) + 'px';
-                updateUI();
-            };
-            div.ondblclick = () => {
-                trackedPlanet = pObj; 
-                isTransitioning = true;
-                document.querySelectorAll('.student-item').forEach(d => d.classList.remove('active'));
-                div.classList.add('active');
-                gsap.to(camera.position, { duration: 1.5, onComplete: () => isTransitioning = false });
-            };
-            listContainer.appendChild(div);
-        });
-
-        // 彗星系统
-        setInterval(() => {
-            const lucky = planets[Math.floor(Math.random() * planets.length)];
-            const edu = eduTypes[Math.floor(Math.random() * eduTypes.length)];
-            const group = new THREE.Group();
-            group.add(new THREE.Mesh(new THREE.SphereGeometry(15, 8, 8), new THREE.MeshBasicMaterial({ color: edu.color })));
-            const tail = new THREE.Mesh(new THREE.ConeGeometry(8, 120, 8), new THREE.MeshBasicMaterial({ color: edu.color, transparent: true, opacity: 0.4 }));
-            tail.rotation.x = Math.PI/2; tail.position.z = 60; group.add(tail);
-            scene.add(group);
-            const mid = new THREE.Vector3((Math.random()-0.5)*2000, 1000, (Math.random()-0.5)*2000);
-            const obj = { t: 0 };
-            gsap.to(obj, { t: 1, duration: 2.5, onUpdate: () => {
-                const target = lucky.group.position;
-                const p = new THREE.Vector3();
-                p.x = (1-obj.t)**2*0 + 2*(1-obj.t)*obj.t*mid.x + obj.t**2*target.x;
-                p.y = (1-obj.t)**2*0 + 2*(1-obj.t)*obj.t*mid.y + obj.t**2*target.y;
-                p.z = (1-obj.t)**2*0 + 2*(1-obj.t)*obj.t*mid.z + obj.t**2*target.z;
-                group.position.copy(p); group.lookAt(target);
-            }, onComplete: () => scene.remove(group) });
-        }, 2000);
-
-        // 调数逻辑
-        const ui = document.getElementById('counters-ui');
-        eduTypes.forEach(t => {
-            const row = document.createElement('div'); row.className = 'counter-row'; row.style.color = t.color;
-            row.innerHTML = `<span>${t.label}育</span><div style="display:flex;align-items:center;"><button class="btn-adj" onclick="adjust('${t.key}',-5)">-</button><span id="v-${t.key}" style="margin:0 12px;font-weight:bold;width:25px;text-align:center;">70</span><button class="btn-adj" onclick="adjust('${t.key}',5)">+</button></div>`;
-            ui.appendChild(row);
-        });
-
-        window.adjust = (k, d) => {
-            if(!currentStudentData) return;
-            currentStudentData.stats[k] = Math.max(0, Math.min(100, currentStudentData.stats[k]+d));
-            updateUI();
-            const p = planets.find(p => p.data.name === currentStudentData.name);
-            if(p && k !== 'de') p.body.material.uniforms[k].value = currentStudentData.stats[k];
-        };
-
-        function updateUI() {
-            document.getElementById('tip-name').innerText = currentStudentData.name;
-            eduTypes.forEach(t => document.getElementById('v-'+t.key).innerText = Math.floor(currentStudentData.stats[t.key]));
-            drawRadar(currentStudentData.stats);
-        }
-
-        // --- 关键修复：点击非交互区域消失 ---
-        container.addEventListener('click', (e) => {
-            tooltip.style.display = 'none';
-        });
-        window.resetView = () => { trackedPlanet = null; gsap.to(camera.position, { x: 0, y: 5000, z: 8000, duration: 1.5 }); };
-
-        function animate() {
-            requestAnimationFrame(animate);
-            planets.forEach(p => {
-                p.angle += p.speed; p.group.position.x = Math.cos(p.angle)*p.dist; p.group.position.z = Math.sin(p.angle)*p.dist;
-                p.body.rotation.y += 0.005;
-            });
-            if(trackedPlanet && !isTransitioning) {
-                const pPos = trackedPlanet.group.position;
-                camera.position.copy(pPos).add(cameraOffset);
-                controls.target.copy(pPos);
-            }
-            controls.update(); renderer.render(scene, camera); labelRenderer.render(scene, camera);
-        }
-        animate();
-    });
-</script>
-</body>
+    <script src="./app.js"></script>
+  </body>
 </html>
